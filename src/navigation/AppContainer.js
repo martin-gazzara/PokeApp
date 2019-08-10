@@ -1,11 +1,21 @@
 import { createAppContainer, createBottomTabNavigator, createStackNavigator } from 'react-navigation';
 import HomeScreen from '../screens/Home';
-import SettingScreen from '../screens/Secondary';
+import InfoScreen from '../screens/Info';
 
 
-const TabNavigator = createStackNavigator({
-  Home: HomeScreen,
-  Settings: SettingScreen
-})
+const TabNavigator = createStackNavigator(
+  {
+    Home: {
+      screen: HomeScreen
+    },
+    Info: {
+      screen: InfoScreen
+    }
+  },
+  {
+    initialRouteName: 'Home',
+    headerMode: 'none'
+  }
+);
 
 export default createAppContainer(TabNavigator)

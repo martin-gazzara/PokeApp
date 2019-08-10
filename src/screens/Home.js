@@ -1,42 +1,28 @@
 import React from 'react';
-import {View, Text, Button, StyleSheet, Image} from 'react-native';
+import {View, Text, Button, StyleSheet, Image, Alert} from 'react-native';
+import { withNavigation } from 'react-navigation';
 import { connect } from 'react-redux';
 import SearchBar from '../components/SearchBar';
 import Loader from '../components/Loader';
-import { thisExpression } from '@babel/types';
+import PokemonList from '../components/PokemonList';
+import { getAllPokemon, retrySearch } from '../store/actions'
 
 class HomeScreen extends React.Component{
 
-  static navigationOptions = {
-    header: null
-  }
-
-  constructor(props){
-    super(props);
-    this.state = {
-      loading: false,
-      error: false
-    }
-
-    this.fetching = this.fetching.bind(this);
-    this.retry = this.retry.bind(this);
-  }
-
   componentDidMount(){
-    this.fetching();
+    this.fetchData();
   }
 
-  fetching(){
-    this.setState({loading: true}, () => setTimeout( () => this.setState({loading: false, error: true}), 3000))
+  fetchData(){
+    this.props.getAllPokemon();
   }
 
-  retry(){
-    this.setState({error: false}, () => this.fetching());
+  retryData(){
+    this.fetchData();
   }
 
   render(){
-    const { items } = this.props;
-    const {loading, error} = this.state;
+    const { results, error, loading } = this.props;
     return(
       <View style={styles.container}>
         <Image
@@ -46,10 +32,8 @@ class HomeScreen extends React.Component{
           style={styles.logo}
         />
         <SearchBar/>
-        <Loader isLoading={loading} failed={error} retry={this.retry}>
-          <View>
-            <Text>Hello world</Text>
-          </View>
+        <Loader isLoading={loading} failed={error} retry={() => this.retryData()}>
+          <PokemonList data={results}/>
         </Loader>
       </View>
     )
@@ -75,7 +59,19 @@ const styles = StyleSheet.create({
 })
 
 const mapStateToProps = (state) => ({
-  items: state.items
+  results: state.results,
+  loading: state.loading,
+  error: state.error,
+  searchError: state.searchError,
+  searchLoading: state.searchLoading,
+  searchResult: state.searchResult
 })
 
-export default connect(mapStateToProps)(HomeScreen);
+const mapDispatchToProps = {
+  getAllPokemon,
+  retrySearch
+}
+
+const ConnectedComponent = connect(mapStateToProps, mapDispatchToProps)(HomeScreen);
+
+export default withNavigation(ConnectedComponent);
